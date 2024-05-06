@@ -1,24 +1,31 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
-def fft(x):
-    """Compute the 1D Fast Fourier Transform of input signal x."""
-    N = len(x)
-    if N <= 1:
-        return x
-    even_fft = fft(x[::2])
-    odd_fft = fft(x[1::2])
-    factor = np.exp(-2j * np.pi * np.arange(N) / N)
-    return np.concatenate([even_fft + factor[:N//2] * odd_fft,
-                           even_fft + factor[N//2:] * odd_fft])
+# Sample signal generation
+fs = 1000  # Sampling frequency (Hz)
+t = np.arange(0, 1, 1/fs)  # Time array (1 second duration)
+f1 = 50  # Frequency of the first sinusoidal component (Hz)
+f2 = 120  # Frequency of the second sinusoidal component (Hz)
+x = np.sin(2 * np.pi * f1 * t) + 0.5 * np.sin(2 * np.pi * f2 * t)  # Composite signal
 
-def ifft(X):
-    """Compute the 1D Inverse Fast Fourier Transform of frequency-domain signal X."""
-    N = len(X)
-    if N <= 1:
-        return X
-    even_ifft = ifft(X[::2])
-    odd_ifft = ifft(X[1::2])
-    factor = np.exp(2j * np.pi * np.arange(N) / N)
-    return np.concatenate([even_ifft + factor[:N//2] * odd_ifft,
-                           even_ifft + factor[N//2:] * odd_ifft]) / 2
+# Compute FFT
+X = np.fft.fft(x)
+freqs = np.fft.fftfreq(len(x), 1/fs)  # Frequency axis
 
+# Plot the original signal and its FFT
+plt.figure(figsize=(12, 6))
+
+plt.subplot(2, 1, 1)
+plt.plot(t, x)
+plt.title('Original Signal')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
+
+plt.subplot(2, 1, 2)
+plt.plot(freqs[:len(x)//2], np.abs(X[:len(x)//2]))
+plt.title('FFT of the Signal')
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Magnitude')
+
+plt.tight_layout()
+plt.show()
